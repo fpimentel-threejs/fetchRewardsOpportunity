@@ -1,38 +1,76 @@
-# create-svelte
+## Project Overview
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+My task was to create a user creation form that will send a GET request to populate certain fields, and a POST request to update user submissions. The site should check for all required fields to be filled out and should alert the user that their submission has been processed.
 
-## Creating a project
+## Tools I Used
 
-If you're seeing this, you've probably already done this step. Congrats!
+I used SvelteKit as a framework, as this is what I am most comfortable working with.
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+I used tailwind-css and flowbite-svelte to create a sleek and simple form.
 
-# create a new project in my-app
-npm create svelte@latest my-app
+## GET Request
+
+The following code was used to get data for the population of my dropdowns:
+
+```
+//GET from url on site mounting
+    onMount(async () => {
+        const response = await fetch(URL);
+        if (response.status === 200) {
+            console.log("Success");
+            recordsObject = await response.json();
+            //stringify JSON file and parse to splitJSON
+            records = JSON.stringify(recordsObject);
+            splitJSON = JSON.parse(records);
+            //grab occupation list
+            occupationsMap = splitJSON.occupations;
+            //create states object
+            states = splitJSON.states;
+
+            //create occupations object to be read by the dropdown
+            occupations = occupationsMap.map( occupationsMap => {
+                return {
+                    value:occupationsMap,
+                    name:occupationsMap
+                }
+            })
+
+        } else {
+            throw new Error(response.status);
+        }
+    });
 ```
 
-## Developing
+I used an onMount function to read the data as soon as the site is loaded. Once I have fetched the URL, I stringify the JSON data and parse it as to get both the occupations list and the states objects as their own. Then, I map the occupations list as an object in order to display it with named values in my dropdown.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## POST Request
 
-```bash
-npm run dev
+The following code was used to post json data that has been chosen by the user:
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+```
+async function doPost () {
+
+        visible = true;
+
+        const res = await fetch(URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                name,
+                email,
+                password,
+                occupation,
+                state
+            })
+        })
+
+        //string being sent to the JSON
+        const json = await res.json()
+        result = JSON.stringify(json)
+
+        console.log(result)
+    }
 ```
 
-## Building
+The format of the input is specified by the body tag.
 
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+All fields of the form have a "required" tag so as not to post until all fields have been filled out.
